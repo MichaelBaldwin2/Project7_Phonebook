@@ -1,6 +1,6 @@
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ public static void main(String[] args) {
 	System.out.println("Use \"e\" for enter, \"f\" for find, \"l\" for list, \"q\" for quit.");
 
 	while (!commandString.equals("q")) {
-		commandString = scanner.nextLine();
+		commandString = scanner.nextLine().toLowerCase();
 
 		if (!commandString.isEmpty()) {
 			if (commandString.length() > 8) {
@@ -96,9 +96,9 @@ private static void loadPhoneBook() {
 		System.exit(2);
 	}
 
-	for (String iString : allLines) {
+	/*for (String iString : allLines) {
 		List<String> strings = iString.split(' ');
-	}
+	}//*/
 }
 
 private static void savePhoneBook() {
@@ -113,6 +113,14 @@ private static void savePhoneBook() {
 		}
 	}
 
-	Writer
+	try (PrintStream stream = new PrintStream(file)) {
+		for(Entry iEntry : entries)
+		{
+			stream.print(iEntry);
+		}
+	} catch (IOException exc) {
+		System.out.println("Failed " + exc);
+		System.exit(1);
+	}
 }
 }
