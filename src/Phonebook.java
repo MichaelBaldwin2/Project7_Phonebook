@@ -3,25 +3,25 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Phonebook {
-    private static Scanner scanner = new Scanner(System.in);
-    private static List<Entry> entries = new ArrayList<Entry>();
+private static Scanner scanner = new Scanner(System.in);
+private static List<Entry> entries = new ArrayList<>();
 
-    public static void main(String[] args) {
-        loadPhoneBook();
+public static void main(String[] args) {
+    String commandString;
 
-        String commandString = "";
-        System.out.println("Codes are entered as 1 to 8 characters.");
-        System.out.println("Use \"e\" for enter, \"f\" for find, \"l\" for list, \"q\" for quit.");
+    commandString = "";
+    loadPhoneBook();
+    System.out.println("Codes are entered as 1 to 8 characters.");
+    System.out.println("Use \"e\" for enter, \"f\" for find, \"l\" for list, \"q\" for quit.");
 
-        while (!commandString.equals("q")) {
-            commandString = scanner.nextLine();
-
-            switch (commandString) {
+    while (!commandString.equals("q")) {
+        if (!commandString.isEmpty()) {
+            switch (commandString.substring(0, 1)) {
                 case "e":
                     addNewEntry(commandString.substring(2));
                     break;
                 case "f":
-                    findEntry(scanner.next());
+                    findEntry(commandString.substring(2));
                     break;
                 case "l":
                     listAllEntries();
@@ -29,34 +29,53 @@ public class Phonebook {
                 case "q":
                     //Do nothing, the while loop will quit
                     break;
+                default:
+                    System.out.println("Input was not recognized. Please try again.");
+                    System.out.println("Use \"e\" for enter, \"f\" for find, \"l\" for list, \"q\" for quit.");
+                    break;
             }
         }
-
-        savePhoneBook();
+        commandString = scanner.nextLine();
     }
 
-    private static void addNewEntry(String codeName) {
-        System.out.println("Enter number: ");
-        String number = scanner.next();
-        System.out.println("Enter notes: ");
-        String notes = scanner.next();
-        entries.add(new Entry(codeName, number, notes));
-    }
+    savePhoneBook();
+}
 
-    private static void findEntry(String name) {
+private static void addNewEntry(String codeName) {
+    String number, notes;
 
-    }
+    System.out.print("Enter number: ");
+    number = scanner.nextLine();
+    System.out.print("Enter notes: ");
+    notes = scanner.nextLine();
+    entries.add(new Entry(codeName, number, notes));
+    System.out.println();
+}
 
-    private static void listAllEntries() {
-        for (Entry iEntry : entries) {
+private static void findEntry(String codeName) {
+    for (Entry iEntry : entries) {
+        if (iEntry.codeName.equals(codeName)) {
             System.out.println();
             System.out.println("-- " + iEntry.codeName);
             System.out.println("-- " + iEntry.number);
             System.out.println("-- " + iEntry.notes);
+            return;
         }
     }
 
-    private static void loadPhoneBook() {
+    System.out.println("** No entry with code " + codeName);
+}
+
+private static void listAllEntries() {
+    for (Entry iEntry : entries) {
+        System.out.println();
+        System.out.println("-- " + iEntry.codeName);
+        System.out.println("-- " + iEntry.number);
+        System.out.println("-- " + iEntry.notes);
+    }
+}
+
+private static void loadPhoneBook() {
         /*File file = new File(System.getProperty("user.dir") + "/PhoneBook.dir");
 
         if (!file.exists()) {
@@ -79,9 +98,9 @@ public class Phonebook {
         for (String iString : allLines) {
             List<String> strings = iString.split(' ');
         }*/
-    }
+}
 
-    private static void savePhoneBook() {
+private static void savePhoneBook() {
 
-    }
+}
 }
