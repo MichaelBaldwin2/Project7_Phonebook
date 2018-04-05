@@ -9,6 +9,6 @@ Entry(String codeName, String number, String notes) {
 
 @Override
 public String toString() {
-	return "-- " + codeName + "\n-- " + number + "\n--" + notes;
+	return "-- " + codeName + "\n-- " + number + "\n-- " + notes;
 }
 }

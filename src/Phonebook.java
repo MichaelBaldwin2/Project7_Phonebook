@@ -1,126 +1,141 @@
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class Phonebook {
-private static Scanner scanner = new Scanner(System.in);
-private static List<Entry> entries = new ArrayList<>();
+    private static Scanner scanner = new Scanner(System.in);
+    private static List<Entry> entries = new ArrayList<>();
 
-public static void main(String[] args) {
-	String commandString;
+    public static void main(String[] args) {
+        String commandString;
 
-	commandString = "";
-	loadPhoneBook();
-	System.out.println("Codes are entered as 1 to 8 characters.");
-	System.out.println("Use \"e\" for enter, \"f\" for find, \"l\" for list, \"q\" for quit.");
+        commandString = "";
+        loadPhoneBook();
+        System.out.println("Codes are entered as 1 to 8 characters.");
+        System.out.println("Use \"e\" for enter, \"f\" for find, \"l\" for list, \"q\" for quit.");
 
-	while (!commandString.equals("q")) {
-		commandString = scanner.nextLine().toLowerCase();
+        while (!commandString.equals("q")) {
+            System.out.print("Command: ");
+            commandString = scanner.nextLine().toLowerCase();
 
-		if (!commandString.isEmpty()) {
-			if (commandString.length() > 8) {
-				System.out.println("Codes have to be between 1 and 8 characters in length.");
-				System.out.println("Use \"e\" for enter, \"f\" for find, \"l\" for list, \"q\" for quit.");
-				continue;
-			}
+            if (!commandString.isEmpty()) {
+                if (commandString.length() > 8) {
+                    System.out.println("Codes have to be between 1 and 8 characters in length.");
+                    System.out.println("Use \"e\" for enter, \"f\" for find, \"l\" for list, \"q\" for quit.");
+                    continue;
+                }
 
-			switch (commandString.substring(0, 1)) {
-				case "e":
-					addNewEntry(commandString.substring(2));
-					break;
-				case "f":
-					findEntry(commandString.substring(2));
-					break;
-				case "l":
-					listAllEntries();
-					break;
-				case "q":
-					//Do nothing, the while loop will quit
-					break;
-				default:
-					System.out.println("Input was not recognized. Please try again.");
-					System.out.println("Use \"e\" for enter, \"f\" for find, \"l\" for list, \"q\" for quit.");
-					break;
-			}
-		}
-	}
+                switch (commandString.substring(0, 1)) {
+                    case "e":
+                        addNewEntry(commandString.substring(2));
+                        break;
+                    case "f":
+                        findEntry(commandString.substring(2));
+                        break;
+                    case "l":
+                        listAllEntries();
+                        break;
+                    case "q":
+                        //Do nothing, the while loop will quit
+                        break;
+                    default:
+                        System.out.println("Input was not recognized. Please try again.");
+                        System.out.println("Use \"e\" for enter, \"f\" for find, \"l\" for list, \"q\" for quit.");
+                        break;
+                }
+            }
+        }
 
-	savePhoneBook();
-}
+        savePhoneBook();
+    }
 
-private static void addNewEntry(String codeName) {
-	String number, notes;
+    private static void addNewEntry(String codeName) {
+        String number, notes;
 
-	System.out.print("Enter number: ");
-	number = scanner.nextLine();
-	System.out.print("Enter notes: ");
-	notes = scanner.nextLine();
-	entries.add(new Entry(codeName, number, notes));
-	System.out.println();
-}
+        for(Entry iEntry : entries)
+        {
+            if(iEntry.codeName.equals(codeName))
+            {
+                //We are going to update the entry
+                System.out.print("Enter number: ");
+                number = scanner.nextLine();
+                System.out.print("Enter notes: ");
+                notes = scanner.nextLine();
+                iEntry.number = number;
+                iEntry.notes = notes;
+                System.out.println();
+                return;
+            }
+        }
 
-private static void findEntry(String codeName) {
-	for (Entry iEntry : entries) {
-		if (iEntry.codeName.equals(codeName)) {
-			System.out.println(iEntry);
-			return;
-		}
-	}
+        System.out.print("Enter number: ");
+        number = scanner.nextLine();
+        System.out.print("Enter notes: ");
+        notes = scanner.nextLine();
+        entries.add(new Entry(codeName, number, notes));
+        System.out.println();
+    }
 
-	System.out.println("** No entry with code " + codeName);
-}
+    private static void findEntry(String codeName) {
+        for (Entry iEntry : entries) {
+            if (iEntry.codeName.equals(codeName)) {
+                System.out.println(iEntry);
+                return;
+            }
+        }
 
-private static void listAllEntries() {
-	for (Entry iEntry : entries) {
-		System.out.println(iEntry);
-	}
-}
+        System.out.println("** No entry with code " + codeName);
+    }
 
-private static void loadPhoneBook() {
-	File file = new File(System.getProperty("user.dir") + "/PhoneBook.dir");
+    private static void listAllEntries() {
+        for (Entry iEntry : entries) {
+            System.out.println(iEntry);
+            System.out.println();
+        }
+    }
 
-	if (!file.exists())
-		return;
+    private static void savePhoneBook() {
+        File file = new File(System.getProperty("user.dir") + "/PhoneBook.dir");
 
-	List<String> allLines = new ArrayList<>();
+        if (!file.exists()) {
+            try {
+                if(!file.createNewFile())
+                {
+                    System.out.println("File already exists!");
+                }
+            } catch (IOException exc) {
+                System.out.println("Failed to create a new phone book file.\n" + exc);
+                System.exit(1);
+            }
+        }
 
-	try {
-		allLines = Files.readAllLines(Paths.get(System.getProperty("user.dir") + "/PhoneBook.dir"));
-	} catch (IOException exc) {
-		System.out.println("Failed to read the phone book file.\n" + exc);
-		System.exit(2);
-	}
+        try (PrintStream stream = new PrintStream(file)) {
+            for (Entry iEntry : entries) {
+                stream.print(iEntry);
+                stream.println();
+            }
+        } catch (FileNotFoundException exc) {
+            System.out.println("Failed " + exc);
+            System.exit(1);
+        }
+    }
 
-	/*for (String iString : allLines) {
-		List<String> strings = iString.split(' ');
-	}//*/
-}
+    private static void loadPhoneBook() {
+        File file = new File(System.getProperty("user.dir") + "/PhoneBook.dir");
 
-private static void savePhoneBook() {
-	File file = new File(System.getProperty("user.dir") + "/PhoneBook.dir");
+        if (!file.exists())
+            return;
 
-	if (!file.exists()) {
-		try {
-			file.createNewFile();
-		} catch (IOException exc) {
-			System.out.println("Failed to create a new phone book file.\n" + exc);
-			System.exit(1);
-		}
-	}
-
-	try (PrintStream stream = new PrintStream(file)) {
-		for(Entry iEntry : entries)
-		{
-			stream.print(iEntry);
-		}
-	} catch (IOException exc) {
-		System.out.println("Failed " + exc);
-		System.exit(1);
-	}
-}
+        try (Scanner scanner = new Scanner(file)) {
+            while (scanner.hasNext()) {
+                String codeName = scanner.nextLine().substring(3);
+                String number = scanner.nextLine().substring(3);
+                String notes = scanner.nextLine().substring(3);
+                entries.add(new Entry(codeName, number, notes));
+            }
+        } catch (FileNotFoundException exc) {
+            System.out.println("Failed to find the phonebook file.\n" + exc);
+        }
+    }
 }
