@@ -1,11 +1,16 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Phonebook {
     private static Scanner scanner = new Scanner(System.in);
-    private static List<Entry> entries = new ArrayList<>();
+    private static Entry[] entries;
+    private static int entryIndex;
+
+    static
+    {
+        entries = new Entry[200];
+        entryIndex = 0;
+    }
 
     public static void main(String[] args) {
         String commandString;
@@ -55,7 +60,7 @@ public class Phonebook {
 
         for(Entry iEntry : entries)
         {
-            if(iEntry.codeName.equals(codeName))
+            if(iEntry != null && iEntry.codeName.equals(codeName))
             {
                 //We are going to update the entry
                 System.out.print("Enter number: ");
@@ -73,13 +78,13 @@ public class Phonebook {
         number = scanner.nextLine();
         System.out.print("Enter notes: ");
         notes = scanner.nextLine();
-        entries.add(new Entry(codeName, number, notes));
+        entries[entryIndex++] = new Entry(codeName, number, notes);
         System.out.println();
     }
 
     private static void findEntry(String codeName) {
         for (Entry iEntry : entries) {
-            if (iEntry.codeName.equals(codeName)) {
+            if (iEntry != null && iEntry.codeName.equals(codeName)) {
                 System.out.println(iEntry);
                 return;
             }
@@ -90,8 +95,10 @@ public class Phonebook {
 
     private static void listAllEntries() {
         for (Entry iEntry : entries) {
-            System.out.println(iEntry);
-            System.out.println();
+            if(iEntry != null) {
+                System.out.println(iEntry);
+                System.out.println();
+            }
         }
     }
 
@@ -112,8 +119,10 @@ public class Phonebook {
 
         try (PrintStream stream = new PrintStream(file)) {
             for (Entry iEntry : entries) {
-                stream.print(iEntry);
-                stream.println();
+                if(iEntry != null) {
+                    stream.print(iEntry);
+                    stream.println();
+                }
             }
         } catch (FileNotFoundException exc) {
             System.out.println("Failed " + exc);
@@ -132,7 +141,7 @@ public class Phonebook {
                 String codeName = scanner.nextLine().substring(3);
                 String number = scanner.nextLine().substring(3);
                 String notes = scanner.nextLine().substring(3);
-                entries.add(new Entry(codeName, number, notes));
+                entries[entryIndex++] = new Entry(codeName, number, notes);
             }
         } catch (FileNotFoundException exc) {
             System.out.println("Failed to find the phonebook file.\n" + exc);
