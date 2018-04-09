@@ -2,18 +2,19 @@ import java.io.*;
 import java.util.Scanner;
 
 public class Phonebook {
+// Written by: Mike Baldwin
+// Project 7 - Phonebook
+// This program can enter
+
 private static Scanner scanner = new Scanner(System.in);
 private static Entry[] entries;
 private static int entryIndex;
 
-static {
-    entries = new Entry[200];
-    entryIndex = 0;
-}
-
 public static void main(String[] args) {
     String commandString;
 
+    entries = new Entry[200];
+    entryIndex = 0;
     commandString = "";
     loadPhoneBook();
     System.out.println("Codes are entered as 1 to 8 characters.");
@@ -30,17 +31,17 @@ public static void main(String[] args) {
                 continue;
             }
 
-            switch (commandString.substring(0, 1)) {
-                case "e":
+            switch (commandString.charAt(0)) {
+                case 'e':
                     addNewEntry(commandString.substring(2));
                     break;
-                case "f":
+                case 'f':
                     findEntry(commandString.substring(2));
                     break;
-                case "l":
+                case 'l':
                     listAllEntries();
                     break;
-                case "q":
+                case 'q':
                     //Do nothing, the while loop will quit
                     break;
                 default:
@@ -108,9 +109,8 @@ private static void savePhoneBook() {
 
     if (!file.exists()) {
         try {
-            if (!file.createNewFile()) {
+            if (!file.createNewFile())
                 System.out.println("File already exists!");
-            }
         } catch (IOException exc) {
             System.out.println("Failed to create a new phone book file.\n" + exc);
             System.exit(1);
@@ -120,8 +120,7 @@ private static void savePhoneBook() {
     try (PrintStream stream = new PrintStream(file)) {
         for (Entry iEntry : entries) {
             if (iEntry != null) {
-                stream.print(iEntry);
-                stream.println();
+                stream.println(iEntry);
             }
         }
     } catch (FileNotFoundException exc) {
@@ -137,16 +136,16 @@ private static void loadPhoneBook() {
     if (!file.exists())
         return;
 
-    try (Scanner scanner = new Scanner(file)) {
-        while (scanner.hasNext()) {
+    try (Scanner input = new Scanner(file)) {
+        while (input.hasNext()) {
             if (entryIndex > 200) {
                 System.out.println("Ignoring rhe rest of the file due to the 200 limit project constraints!");
                 break;
             }
 
-            codeName = scanner.nextLine().substring(3);
-            number = scanner.nextLine().substring(3);
-            notes = scanner.nextLine().substring(3);
+            codeName = input.nextLine().substring(3);
+            number = input.nextLine().substring(3);
+            notes = input.nextLine().substring(3);
             entries[entryIndex++] = new Entry(codeName, number, notes);
         }
     } catch (FileNotFoundException exc) {
