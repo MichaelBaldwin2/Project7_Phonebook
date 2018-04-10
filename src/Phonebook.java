@@ -4,7 +4,7 @@ import java.util.Scanner;
 public class Phonebook {
 // Written by: Mike Baldwin
 // Project 7 - Phonebook
-// This program can enter
+// This program allows the saving, loading, addition, and editing of an entry into a phonebook.
 
 private static Scanner scanner = new Scanner(System.in);
 private static Entry[] entries;
@@ -16,7 +16,14 @@ public static void main(String[] args) {
     entries = new Entry[200];
     entryIndex = 0;
     commandString = "";
-    loadPhoneBook();
+
+    try {
+        readPhoneBook();
+    } catch (IOException exc) {
+        System.out.println("Failed to read phone book.\n" + exc);
+        System.exit(1);
+    }
+
     System.out.println("Codes are entered as 1 to 8 characters.");
     System.out.println("Use \"e\" for enter, \"f\" for find, \"l\" for list, \"q\" for quit.");
 
@@ -24,41 +31,48 @@ public static void main(String[] args) {
         System.out.print("Command: ");
         commandString = scanner.nextLine().toLowerCase();
 
-        if (!commandString.isEmpty()) {
-            if (commandString.length() > 8) {
-                System.out.println("Codes have to be between 1 and 8 characters in length.");
-                System.out.println("Use \"e\" for enter, \"f\" for find, \"l\" for list, \"q\" for quit.");
-                continue;
-            }
+        if (commandString.isEmpty())
+            continue;
+        if (commandString.length() > 8) {
+            System.out.println("Codes have to be between 1 and 8 characters in length.");
+            System.out.println("Use \"e\" for enter, \"f\" for find, \"l\" for list," +
+                    "\"q\" for quit.");
+            continue;
+        }
 
-            switch (commandString.charAt(0)) {
-                case 'e':
-                    addNewEntry(commandString.substring(2));
-                    break;
-                case 'f':
-                    findEntry(commandString.substring(2));
-                    break;
-                case 'l':
-                    listAllEntries();
-                    break;
-                case 'q':
-                    //Do nothing, the while loop will quit
-                    break;
-                default:
-                    System.out.println("Input was not recognized. Please try again.");
-                    System.out.println("Use \"e\" for enter, \"f\" for find, \"l\" for list, \"q\" for quit.");
-                    break;
-            }
+        switch (commandString.charAt(0)) {
+            case 'e':
+                addNewEntry(commandString.substring(2));
+                break;
+            case 'f':
+                findEntry(commandString.substring(2));
+                break;
+            case 'l':
+                listAllEntries();
+                break;
+            case 'q':
+                //Do nothing, the while loop will quit
+                break;
+            default:
+                System.out.println("Input was not recognized. Please try again.");
+                System.out.println("Use \"e\" for enter, \"f\" for find, \"l\" for list," +
+                        "\"q\" for quit.");
+                break;
         }
     }
 
-    savePhoneBook();
+    try {
+        storePhoneBook();
+    } catch (IOException exc) {
+        System.out.println("Failed to store phone book.\n" + exc);
+        System.exit(2);
+    }
 }
 
 private static void addNewEntry(String codeName) {
     String number, notes;
 
-    for (Entry iEntry : entries) {
+    for (Entry iEntry : entries)
         if (iEntry != null && iEntry.codeName.equals(codeName)) {
             //We are going to update the entry
             System.out.print("Enter number: ");
@@ -70,12 +84,13 @@ private static void addNewEntry(String codeName) {
             System.out.println();
             return;
         }
-    }
 
     if (entryIndex > 200) {
-        System.out.println("Can't add any more entries due to the 200 limit project constraints!");
+        System.out.println("Can't add any more entries due to the 200 limit " +
+                "project constraints!");
         return;
     }
+
     System.out.print("Enter number: ");
     number = scanner.nextLine();
     System.out.print("Enter notes: ");
@@ -85,26 +100,24 @@ private static void addNewEntry(String codeName) {
 }
 
 private static void findEntry(String codeName) {
-    for (Entry iEntry : entries) {
+    for (Entry iEntry : entries)
         if (iEntry != null && iEntry.codeName.equals(codeName)) {
             System.out.println(iEntry);
             return;
         }
-    }
 
     System.out.println("** No entry with code " + codeName);
 }
 
 private static void listAllEntries() {
-    for (Entry iEntry : entries) {
+    for (Entry iEntry : entries)
         if (iEntry != null) {
             System.out.println(iEntry);
             System.out.println();
         }
-    }
 }
 
-private static void savePhoneBook() {
+private static void storePhoneBook() throws IOException {
     File file = new File(System.getProperty("user.dir") + "/PhoneBook.dir");
 
     if (!file.exists()) {
@@ -112,24 +125,22 @@ private static void savePhoneBook() {
             if (!file.createNewFile())
                 System.out.println("File already exists!");
         } catch (IOException exc) {
-            System.out.println("Failed to create a new phone book file.\n" + exc);
-            System.exit(1);
+            System.out.println("Failed to create a new phone book file.");
+            throw exc;
         }
     }
 
     try (PrintStream stream = new PrintStream(file)) {
-        for (Entry iEntry : entries) {
-            if (iEntry != null) {
+        for (Entry iEntry : entries)
+            if (iEntry != null)
                 stream.println(iEntry);
-            }
-        }
     } catch (FileNotFoundException exc) {
-        System.out.println("Failed to find the file. " + exc);
-        System.exit(1);
+        System.out.println("Failed to find the file.");
+        throw exc;
     }
 }
 
-private static void loadPhoneBook() {
+private static void readPhoneBook() throws IOException {
     String codeName, number, notes;
     File file = new File(System.getProperty("user.dir") + "/PhoneBook.dir");
 
@@ -139,7 +150,7 @@ private static void loadPhoneBook() {
     try (Scanner input = new Scanner(file)) {
         while (input.hasNext()) {
             if (entryIndex > 200) {
-                System.out.println("Ignoring rhe rest of the file due to the 200 limit project constraints!");
+                System.out.println("Ignoring the rest of the file due to the 200 limit project constraints!");
                 break;
             }
 
@@ -149,7 +160,8 @@ private static void loadPhoneBook() {
             entries[entryIndex++] = new Entry(codeName, number, notes);
         }
     } catch (FileNotFoundException exc) {
-        System.out.println("Failed to find the file.\n" + exc);
+        System.out.println("Failed to find the file.");
+        throw exc;
     }
 }
 }
