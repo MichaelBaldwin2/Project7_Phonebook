@@ -1,7 +1,17 @@
-import java.io.*;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Scanner;
 
-public class Phonebook {
+public class Phonebook extends Application {
 // Written by: Mike Baldwin
 // Project 7 - Phonebook
 // This program allows the saving, loading, addition, and editing of an entry into a phonebook.
@@ -11,6 +21,30 @@ private static Entry[] entries;
 private static int entryIndex;
 
 public static void main(String[] args) {
+	launch(args);
+}
+
+@Override
+public void start(Stage primaryStage) throws Exception {
+	Button fileButton = new Button("File");
+	Button editButton = new Button("Edit");
+	Button optionsButton = new Button("Options");
+	Button helpButton = new Button("Help");
+	GridPane menuBarPane = new GridPane();
+	//menuBarPane.setPrefSize(512, 32);
+	menuBarPane.add(fileButton, 0, 0);
+	menuBarPane.add(editButton, 1, 0);
+	menuBarPane.add(optionsButton, 2, 0);
+	menuBarPane.add(helpButton, 3, 0);
+
+	//Button button = new Button("Add New Entry");
+	Scene scene = new Scene(menuBarPane, 512, 768, Color.GRAY);
+	primaryStage.setTitle("PhoneBook");
+	primaryStage.setScene(scene);
+	primaryStage.show();
+}
+
+public static void update() {
     String commandString;
 
     entries = new Entry[200];
